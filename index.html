@@ -78,13 +78,13 @@
             border: 1px solid #ced4da;
             color: #495057;
             pointer-events: none; /* Blokuje możliwość kliknięcia i edycji */
+            -moz-appearance: textfield; /* Ukrywa strzałki w Firefox */
         }
-        .pct {
-            font-size: 0.8em;
-            color: #495057;
-            min-width: 45px;
-            margin-left: 5px;
-            display: inline-block;
+        /* Ukrywa strzałki w Chrome, Safari, Edge, Opera dla pól tylko do odczytu */
+        input[type="number"].readonly-input::-webkit-outer-spin-button,
+        input[type="number"].readonly-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
         .val-display {
             font-size: 1.05em;
@@ -110,11 +110,6 @@
             margin: 0 0 8px 0;
             color: #33691e;
             font-size: 1.1em;
-        }
-        .control-panel p {
-            margin: 0 0 10px 0;
-            font-size: 0.85em;
-            color: #444;
         }
         .status {
             font-weight: bold;
@@ -185,26 +180,14 @@
             <tr class="row-total-main">
                 <td class="group-name">RAZEM GATUNEK</td>
                 <td><span id="grand_opt" class="val-display">0</span></td>
-                <td>
-                    <span id="grand_min" class="val-display">0</span>
-                    <span id="grand_min_pct" class="pct">(0.0%)</span>
-                </td>
-                <td>
-                    <span id="grand_max" class="val-display">0</span>
-                    <span id="grand_max_pct" class="pct">(0.0%)</span>
-                </td>
+                <td><span id="grand_min" class="val-display">0</span></td>
+                <td><span id="grand_max" class="val-display">0</span></td>
             </tr>
             <tr class="row-total-males">
                 <td class="group-name">samce razem</td>
                 <td><span id="males_total_opt" class="val-display">0</span></td>
-                <td>
-                    <span id="males_total_min" class="val-display">0</span>
-                    <span id="males_total_min_pct" class="pct">(0.0%)</span>
-                </td>
-                <td>
-                    <span id="males_total_max" class="val-display">0</span>
-                    <span id="males_total_max_pct" class="pct">(0.0%)</span>
-                </td>
+                <td><span id="males_total_min" class="val-display">0</span></td>
+                <td><span id="males_total_max" class="val-display">0</span></td>
             </tr>
             <tr>
                 <td class="group-name"> - selekcyjne</td>
@@ -212,13 +195,11 @@
                 <td>
                     <div class="cell-flex">
                         <input type="number" id="samce_sel_min" class="readonly-input" readonly tabindex="-1">
-                        <span id="samce_sel_min_pct" class="pct">(0%)</span>
                     </div>
                 </td>
                 <td>
                     <div class="cell-flex">
                         <input type="number" id="samce_sel_max" class="readonly-input" readonly tabindex="-1">
-                        <span id="samce_sel_max_pct" class="pct">(0%)</span>
                     </div>
                 </td>
             </tr>
@@ -228,13 +209,11 @@
                 <td>
                     <div class="cell-flex">
                         <input type="number" id="samce_low_min" class="readonly-input" readonly tabindex="-1">
-                        <span id="samce_low_min_pct" class="pct">(0%)</span>
                     </div>
                 </td>
                 <td>
                     <div class="cell-flex">
                         <input type="number" id="samce_low_max" class="readonly-input" readonly tabindex="-1">
-                        <span id="samce_low_max_pct" class="pct">(0%)</span>
                     </div>
                 </td>
             </tr>
@@ -244,13 +223,11 @@
                 <td>
                     <div class="cell-flex">
                         <input type="number" id="os_zenskie_min" class="readonly-input" readonly tabindex="-1">
-                        <span id="os_zenskie_min_pct" class="pct">(0%)</span>
                     </div>
                 </td>
                 <td>
                     <div class="cell-flex">
                         <input type="number" id="os_zenskie_max" class="readonly-input" readonly tabindex="-1">
-                        <span id="os_zenskie_max_pct" class="pct">(0%)</span>
                     </div>
                 </td>
             </tr>
@@ -260,13 +237,11 @@
                 <td>
                     <div class="cell-flex">
                         <input type="number" id="os_mlode_min" class="readonly-input" readonly tabindex="-1">
-                        <span id="os_mlode_min_pct" class="pct">(0%)</span>
                     </div>
                 </td>
                 <td>
                     <div class="cell-flex">
                         <input type="number" id="os_mlode_max" class="readonly-input" readonly tabindex="-1">
-                        <span id="os_mlode_max_pct" class="pct">(0%)</span>
                     </div>
                 </td>
             </tr>
@@ -274,13 +249,11 @@
     </table>
 
     <div class="legend">
-        <b>⚙️ Pełna Automatyzacja:</b> Formularz generuje jedną, zdeterminowaną matematycznie wersję. Ewentualne braki ułamkowe wynikające z zaokrągleń są przydzielane automatycznie do wierszy, ale <b>tylko w granicach ściśle dozwolonych prawem dla danej grupy</b> (brak możliwości sztucznego łamania widełek w wierszach).
+        <b>⚙️ System automatyczny:</b> Formularz generuje jedną wersję planu minimum i maksimum dla konkretnego zestawu wartości optymalnych do pozyskania. Jeżeli zachodzi potrzeba odjęcia lub dodania wartości w grupach płciowo wiekowych przydziela ją tak aby spowodować najmniejsze możliwe przekroczenie w widełkach +/- 10%
     </div>
 
     <div class="control-panel">
         <h3>Panel Kontrolny Sumaryczny</h3>
-        <p>Wszystkie wyliczenia są finalne. Poniższe panele potwierdzają, że uzyskane sumy nie łamią nadrzędnych widełek dla całości i dla samców.</p>
-        
         <table>
             <tr>
                 <th>Parametr kontrolny</th>
@@ -319,11 +292,6 @@
 <script>
     const inputs = ['samce_sel', 'samce_low', 'os_zenskie', 'os_mlode'];
 
-    function getPctStr(val, opt) {
-        if (opt === 0 || isNaN(opt)) return "(0.0%)";
-        return "(" + ((val / opt) * 100).toFixed(1) + "%)";
-    }
-
     // Algorytm dystrybuujący braki ułamkowe w ścisłych granicach legalności
     function distributeSmart(ids, type, targetSum, data) {
         let items = ids.map(id => {
@@ -336,9 +304,8 @@
         let currentSum = items.reduce((sum, item) => sum + item.val, 0);
 
         if (type === 'min' && currentSum < targetSum) {
-            // Jeśli brakuje do minimum dla całości, dodajemy (ale tylko tam gdzie val < opt)
             let diffToFix = targetSum - currentSum;
-            items.sort((a, b) => (b.exact - b.val) - (a.exact - a.val)); // Największa "strata" ułamka u góry
+            items.sort((a, b) => (b.exact - b.val) - (a.exact - a.val));
             
             let added = 0;
             let safety = 0;
@@ -351,14 +318,13 @@
                         changed = true;
                     }
                 }
-                if (!changed) break; // Brak legalnego miejsca na korektę
+                if (!changed) break;
                 safety++;
             }
         } 
         else if (type === 'max' && currentSum > targetSum) {
-            // Jeśli mamy nadwyżkę ponad maksimum całości, odejmujemy (ale tylko tam gdzie val > opt)
             let diffToFix = currentSum - targetSum;
-            items.sort((a, b) => (b.val - b.exact) - (a.val - a.exact)); // Największy "zysk" ułamka u góry
+            items.sort((a, b) => (b.val - b.exact) - (a.val - a.exact));
             
             let subbed = 0;
             let safety = 0;
@@ -371,7 +337,7 @@
                         changed = true;
                     }
                 }
-                if (!changed) break; // Brak legalnego miejsca na korektę
+                if (!changed) break;
                 safety++;
             }
         }
@@ -419,12 +385,6 @@
     }
 
     function updateSums(data, m_opt, o_opt, g_opt, m_min_tar, m_max_tar, g_min_tar, g_max_tar) {
-        inputs.forEach(id => {
-            let opt = data[id].opt;
-            document.getElementById(id + '_min_pct').innerText = getPctStr(data[id].min, opt);
-            document.getElementById(id + '_max_pct').innerText = getPctStr(data[id].max, opt);
-        });
-
         let m_min = data.samce_sel.min + data.samce_low.min;
         let m_max = data.samce_sel.max + data.samce_low.max;
         
@@ -433,15 +393,11 @@
 
         document.getElementById('males_total_opt').innerText = m_opt;
         document.getElementById('males_total_min').innerText = m_min;
-        document.getElementById('males_total_min_pct').innerText = getPctStr(m_min, m_opt);
         document.getElementById('males_total_max').innerText = m_max;
-        document.getElementById('males_total_max_pct').innerText = getPctStr(m_max, m_opt);
 
         document.getElementById('grand_opt').innerText = g_opt;
         document.getElementById('grand_min').innerText = g_min;
-        document.getElementById('grand_min_pct').innerText = getPctStr(g_min, g_opt);
         document.getElementById('grand_max').innerText = g_max;
-        document.getElementById('grand_max_pct').innerText = getPctStr(g_max, g_opt);
 
         // Panel na dole
         document.getElementById('check_req_all').innerText = g_min_tar + " - " + g_max_tar;
@@ -459,12 +415,9 @@
         let el = document.getElementById(id);
         if (min === 0 && max === 0 && val === 0) { el.innerText = "OK"; el.className = "status ok"; return; }
         
-        // Zawsze zielone, bo system trzyma liczby w prawnych ramach. Jeśli brakuje, tzn. że wyrównanie było prawnie niemożliwe.
         if (val >= min && val <= max) { 
             el.innerText = "OK"; el.className = "status ok"; 
         } else {
-            // Sytuacja gdy ułamki w ogóle nie pozwoliły na korektę bez łamania wierszy (np. same wartości <0.5)
-            // Wynik jest nadal 100% legalny z punktu widzenia prawa wierszy.
             el.innerText = "Zgodne z limitem wierszy"; el.className = "status ok"; 
         }
     }

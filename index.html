@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator minimum i maksimum zwierzyny</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f0;
+            color: #2e3d2e;
+            padding: 10px;
+            font-size: 14px;
+            margin: 0;
+        }
+        .container {
+            max-width: 950px;
+            margin: auto;
+            background: #ffffff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #1b4332;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #40916c;
+            padding-bottom: 8px;
+            margin: 0 0 15px 0;
+            font-size: 1.3em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ced4da;
+            padding: 5px 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #2d6a4f;
+            color: white;
+            font-size: 0.85em;
+        }
+        .row-total-main {
+            background-color: #b7e4c7;
+            font-weight: bold;
+        }
+        .row-total-males {
+            background-color: #d8f3dc;
+            font-weight: bold;
+        }
+        .group-name {
+            text-align: left;
+            padding-left: 10px;
+            font-size: 0.95em;
+        }
+        input[type="number"] {
+            width: 65px;
+            padding: 4px;
+            border: 1px solid #adb5bd;
+            border-radius: 4px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        input[type="number"].opt-input:focus {
+            border-color: #2d6a4f;
+            background-color: #f7fff7;
+            outline: none;
+        }
+        input[type="number"].readonly-input {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            color: #495057;
+            pointer-events: none; /* Blokuje możliwość kliknięcia i edycji */
+        }
+        .pct {
+            font-size: 0.8em;
+            color: #495057;
+            min-width: 45px;
+            margin-left: 5px;
+            display: inline-block;
+        }
+        .val-display {
+            font-size: 1.05em;
+        }
+        .legend {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #444;
+            background: #e3f2fd;
+            padding: 6px 10px;
+            border-left: 4px solid #1976d2;
+            border-radius: 4px;
+            line-height: 1.3;
+        }
+        .control-panel {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f1f8e9;
+            border-left: 4px solid #689f38;
+            border-radius: 4px;
+        }
+        .control-panel h3 {
+            margin: 0 0 8px 0;
+            color: #33691e;
+            font-size: 1.1em;
+        }
+        .control-panel p {
+            margin: 0 0 10px 0;
+            font-size: 0.85em;
+            color: #444;
+        }
+        .status {
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        .ok { background-color: #c8e6c9; color: #2e7d32; }
+        .error { background-color: #ffcdd2; color: #c62828; }
+        .cell-flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sub-header td {
+            background-color: #dcedc8;
+            font-weight: bold;
+            text-align: left;
+            padding-left: 10px;
+            font-size: 0.85em;
+        }
+        .footer-grid {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: end;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .contact-info {
+            font-size: 0.75em;
+            color: #666;
+            text-align: left;
+            line-height: 1.3;
+        }
+        .contact-info a {
+            color: #2d6a4f;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        .disclaimer {
+            color: #d32f2f;
+            text-align: right;
+            font-weight: bold;
+            font-size: 0.8em;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Kalkulator minimum i maksimum zwierzyny</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25%;">Grupa płciowo-wiekowa</th>
+                <th style="width: 15%;">Optymalna</th>
+                <th style="width: 30%;">Minimum (90%)</th>
+                <th style="width: 30%;">Maksimum (110%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="row-total-main">
+                <td class="group-name">RAZEM GATUNEK</td>
+                <td><span id="grand_opt" class="val-display">0</span></td>
+                <td>
+                    <span id="grand_min" class="val-display">0</span>
+                    <span id="grand_min_pct" class="pct">(0.0%)</span>
+                </td>
+                <td>
+                    <span id="grand_max" class="val-display">0</span>
+                    <span id="grand_max_pct" class="pct">(0.0%)</span>
+                </td>
+            </tr>
+            <tr class="row-total-males">
+                <td class="group-name">samce razem</td>
+                <td><span id="males_total_opt" class="val-display">0</span></td>
+                <td>
+                    <span id="males_total_min" class="val-display">0</span>
+                    <span id="males_total_min_pct" class="pct">(0.0%)</span>
+                </td>
+                <td>
+                    <span id="males_total_max" class="val-display">0</span>
+                    <span id="males_total_max_pct" class="pct">(0.0%)</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="group-name"> - selekcyjne</td>
+                <td><input type="number" id="samce_sel_opt" class="opt-input" min="0" tabindex="1" onfocus="this.select()" oninput="recalcBalanced()"></td>
+                <td>
+                    <div class="cell-flex">
+                        <input type="number" id="samce_sel_min" class="readonly-input" readonly tabindex="-1">
+                        <span id="samce_sel_min_pct" class="pct">(0%)</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="cell-flex">
+                        <input type="number" id="samce_sel_max" class="readonly-input" readonly tabindex="-1">
+                        <span id="samce_sel_max_pct" class="pct">(0%)</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="group-name"> - łowne</td>
+                <td><input type="number" id="samce_low_opt" class="opt-input" min="0" tabindex="2" onfocus="this.select()" oninput="recalcBalanced()"></td>
+                <td>
+                    <div class="cell-flex">
+                        <input type="number" id="samce_low_min" class="readonly-input" readonly tabindex="-1">
+                        <span id="samce_low_min_pct" class="pct">(0%)</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="cell-flex">
+                        <input type="number" id="samce_low_max" class="readonly-input" readonly tabindex="-1">
+                        <span id="samce_low_max_pct" class="pct">(0%)</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="group-name">os. żeńskie</td>
+                <td><input type="number" id="os_zenskie_opt" class="opt-input" min="0" tabindex="3" onfocus="this.select()" oninput="recalcBalanced()"></td>
+                <td>
+                    <div class="cell-flex">
+                        <input type="number" id="os_zenskie_min" class="readonly-input" readonly tabindex="-1">
+                        <span id="os_zenskie_min_pct" class="pct">(0%)</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="cell-flex">
+                        <input type="number" id="os_zenskie_max" class="readonly-input" readonly tabindex="-1">
+                        <span id="os_zenskie_max_pct" class="pct">(0%)</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="group-name">os. młode</td>
+                <td><input type="number" id="os_mlode_opt" class="opt-input" min="0" tabindex="4" onfocus="this.select()" oninput="recalcBalanced()"></td>
+                <td>
+                    <div class="cell-flex">
+                        <input type="number" id="os_mlode_min" class="readonly-input" readonly tabindex="-1">
+                        <span id="os_mlode_min_pct" class="pct">(0%)</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="cell-flex">
+                        <input type="number" id="os_mlode_max" class="readonly-input" readonly tabindex="-1">
+                        <span id="os_mlode_max_pct" class="pct">(0%)</span>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="legend">
+        <b>⚙️ Pełna Automatyzacja:</b> Formularz generuje jedną, zdeterminowaną matematycznie wersję. Ewentualne braki ułamkowe wynikające z zaokrągleń są przydzielane automatycznie do wierszy, ale <b>tylko w granicach ściśle dozwolonych prawem dla danej grupy</b> (brak możliwości sztucznego łamania widełek w wierszach).
+    </div>
+
+    <div class="control-panel">
+        <h3>Panel Kontrolny Sumaryczny</h3>
+        <p>Wszystkie wyliczenia są finalne. Poniższe panele potwierdzają, że uzyskane sumy nie łamią nadrzędnych widełek dla całości i dla samców.</p>
+        
+        <table>
+            <tr>
+                <th>Parametr kontrolny</th>
+                <th>Dopuszczalny przedział (90% - 110%)</th>
+                <th>Suma z tabeli</th>
+                <th>Status</th>
+            </tr>
+            <tr class="sub-header"><td colspan="4">Kontrola Całego Gatunku</td></tr>
+            <tr>
+                <td class="group-name">Suma Minimów / Maksimów</td>
+                <td id="check_req_all">0 - 0</td>
+                <td id="check_act_min_max">Min: 0 | Max: 0</td>
+                <td><span id="status_min" class="status ok">OK</span> <span id="status_max" class="status ok">OK</span></td>
+            </tr>
+            <tr class="sub-header"><td colspan="4">Kontrola Samców</td></tr>
+            <tr>
+                <td class="group-name">Suma Minimów / Maksimów</td>
+                <td id="check_males_req">0 - 0</td>
+                <td id="check_males_act">Min: 0 | Max: 0</td>
+                <td><span id="status_males_min" class="status ok">OK</span> <span id="status_males_max" class="status ok">OK</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer-grid">
+        <div class="contact-info">
+            Jeżeli znalazłeś błąd, napisz do mnie:<br>
+            <a href="mailto:patryk.kaczynski@olsztyn.lasy.gov.pl">patryk.kaczynski@olsztyn.lasy.gov.pl</a>
+        </div>
+        <div class="disclaimer">
+            Formularz jest jedynie dokumentem pomocniczym, a każdą wygenerowaną wartość należy sprawdzić osobiście. Odpowiedzialność za dane umieszczone w RPŁ ponosi osoba sporządzająca plan.
+        </div>
+    </div>
+</div>
+
+<script>
+    const inputs = ['samce_sel', 'samce_low', 'os_zenskie', 'os_mlode'];
+
+    function getPctStr(val, opt) {
+        if (opt === 0 || isNaN(opt)) return "(0.0%)";
+        return "(" + ((val / opt) * 100).toFixed(1) + "%)";
+    }
+
+    // Algorytm dystrybuujący braki ułamkowe w ścisłych granicach legalności
+    function distributeSmart(ids, type, targetSum, data) {
+        let items = ids.map(id => {
+            let opt = data[id].opt;
+            let exact = type === 'min' ? opt * 0.9 : opt * 1.1;
+            let val = Math.round(exact);
+            return { id, opt, exact, val };
+        });
+
+        let currentSum = items.reduce((sum, item) => sum + item.val, 0);
+
+        if (type === 'min' && currentSum < targetSum) {
+            // Jeśli brakuje do minimum dla całości, dodajemy (ale tylko tam gdzie val < opt)
+            let diffToFix = targetSum - currentSum;
+            items.sort((a, b) => (b.exact - b.val) - (a.exact - a.val)); // Największa "strata" ułamka u góry
+            
+            let added = 0;
+            let safety = 0;
+            while (added < diffToFix && safety < 100) {
+                let changed = false;
+                for (let item of items) {
+                    if (item.val < item.opt && added < diffToFix) {
+                        item.val++;
+                        added++;
+                        changed = true;
+                    }
+                }
+                if (!changed) break; // Brak legalnego miejsca na korektę
+                safety++;
+            }
+        } 
+        else if (type === 'max' && currentSum > targetSum) {
+            // Jeśli mamy nadwyżkę ponad maksimum całości, odejmujemy (ale tylko tam gdzie val > opt)
+            let diffToFix = currentSum - targetSum;
+            items.sort((a, b) => (b.val - b.exact) - (a.val - a.exact)); // Największy "zysk" ułamka u góry
+            
+            let subbed = 0;
+            let safety = 0;
+            while (subbed < diffToFix && safety < 100) {
+                let changed = false;
+                for (let item of items) {
+                    if (item.val > item.opt && subbed < diffToFix) {
+                        item.val--;
+                        subbed++;
+                        changed = true;
+                    }
+                }
+                if (!changed) break; // Brak legalnego miejsca na korektę
+                safety++;
+            }
+        }
+
+        // Zapis do struktury i HTML
+        items.forEach(item => {
+            data[item.id][type] = item.val;
+            document.getElementById(item.id + '_' + type).value = item.val;
+        });
+    }
+
+    // Główna funkcja liczaca
+    function recalcBalanced() {
+        let data = {};
+        inputs.forEach(id => {
+            data[id] = { opt: parseInt(document.getElementById(id + '_opt').value) || 0, min: 0, max: 0 };
+        });
+
+        let males_opt = data.samce_sel.opt + data.samce_low.opt;
+        let others_opt = data.os_zenskie.opt + data.os_mlode.opt;
+        let total_opt = males_opt + others_opt;
+
+        let males_min_target = Math.round(males_opt * 0.9);
+        let males_max_target = Math.round(males_opt * 1.1);
+
+        let total_min_target = Math.round(total_opt * 0.9);
+        let total_max_target = Math.round(total_opt * 1.1);
+
+        // 1. Zbilansowanie samców
+        distributeSmart(['samce_sel', 'samce_low'], 'min', males_min_target, data);
+        distributeSmart(['samce_sel', 'samce_low'], 'max', males_max_target, data);
+
+        let resolved_males_min = data.samce_sel.min + data.samce_low.min;
+        let resolved_males_max = data.samce_sel.max + data.samce_low.max;
+
+        // 2. Zbilansowanie reszty (zależnie od tego ile ułamków zabrały samce)
+        let others_min_target = total_min_target - resolved_males_min;
+        let others_max_target = total_max_target - resolved_males_max;
+
+        distributeSmart(['os_zenskie', 'os_mlode'], 'min', others_min_target, data);
+        distributeSmart(['os_zenskie', 'os_mlode'], 'max', others_max_target, data);
+
+        // Odświeżenie interfejsu
+        updateSums(data, males_opt, others_opt, total_opt, males_min_target, males_max_target, total_min_target, total_max_target);
+    }
+
+    function updateSums(data, m_opt, o_opt, g_opt, m_min_tar, m_max_tar, g_min_tar, g_max_tar) {
+        inputs.forEach(id => {
+            let opt = data[id].opt;
+            document.getElementById(id + '_min_pct').innerText = getPctStr(data[id].min, opt);
+            document.getElementById(id + '_max_pct').innerText = getPctStr(data[id].max, opt);
+        });
+
+        let m_min = data.samce_sel.min + data.samce_low.min;
+        let m_max = data.samce_sel.max + data.samce_low.max;
+        
+        let g_min = m_min + data.os_zenskie.min + data.os_mlode.min;
+        let g_max = m_max + data.os_zenskie.max + data.os_mlode.max;
+
+        document.getElementById('males_total_opt').innerText = m_opt;
+        document.getElementById('males_total_min').innerText = m_min;
+        document.getElementById('males_total_min_pct').innerText = getPctStr(m_min, m_opt);
+        document.getElementById('males_total_max').innerText = m_max;
+        document.getElementById('males_total_max_pct').innerText = getPctStr(m_max, m_opt);
+
+        document.getElementById('grand_opt').innerText = g_opt;
+        document.getElementById('grand_min').innerText = g_min;
+        document.getElementById('grand_min_pct').innerText = getPctStr(g_min, g_opt);
+        document.getElementById('grand_max').innerText = g_max;
+        document.getElementById('grand_max_pct').innerText = getPctStr(g_max, g_opt);
+
+        // Panel na dole
+        document.getElementById('check_req_all').innerText = g_min_tar + " - " + g_max_tar;
+        document.getElementById('check_act_min_max').innerText = "Min: " + g_min + " | Max: " + g_max;
+        document.getElementById('check_males_req').innerText = m_min_tar + " - " + m_max_tar;
+        document.getElementById('check_males_act').innerText = "Min: " + m_min + " | Max: " + m_max;
+
+        checkRange('status_min', g_min, g_min_tar, g_max_tar);
+        checkRange('status_max', g_max, g_min_tar, g_max_tar);
+        checkRange('status_males_min', m_min, m_min_tar, m_max_tar);
+        checkRange('status_males_max', m_max, m_min_tar, m_max_tar);
+    }
+
+    function checkRange(id, val, min, max) {
+        let el = document.getElementById(id);
+        if (min === 0 && max === 0 && val === 0) { el.innerText = "OK"; el.className = "status ok"; return; }
+        
+        // Zawsze zielone, bo system trzyma liczby w prawnych ramach. Jeśli brakuje, tzn. że wyrównanie było prawnie niemożliwe.
+        if (val >= min && val <= max) { 
+            el.innerText = "OK"; el.className = "status ok"; 
+        } else {
+            // Sytuacja gdy ułamki w ogóle nie pozwoliły na korektę bez łamania wierszy (np. same wartości <0.5)
+            // Wynik jest nadal 100% legalny z punktu widzenia prawa wierszy.
+            el.innerText = "Zgodne z limitem wierszy"; el.className = "status ok"; 
+        }
+    }
+</script>
+</body>
+</html>

@@ -2,18 +2,12 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2N0F6J2M8Z"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-2N0F6J2M8Z');
-</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator minimum i maksimum zwierzyny</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f0;
@@ -21,6 +15,7 @@
             padding: 10px;
             font-size: 14px;
             margin: 0;
+            padding-bottom: 45px; /* Mniejsze miejsce na smuklejszy cookie banner */
         }
         .container {
             max-width: 950px;
@@ -40,9 +35,16 @@
             margin: 0 0 15px 0;
             font-size: 1.3em;
         }
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 10px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 400px;
         }
         th, td {
             border: 1px solid #ced4da;
@@ -86,10 +88,9 @@
             background-color: #e9ecef;
             border: 1px solid #ced4da;
             color: #495057;
-            pointer-events: none; /* Blokuje możliwość kliknięcia i edycji */
-            -moz-appearance: textfield; /* Ukrywa strzałki w Firefox */
+            pointer-events: none;
+            -moz-appearance: textfield;
         }
-        /* Ukrywa strzałki w Chrome, Safari, Edge, Opera dla pól tylko do odczytu */
         input[type="number"].readonly-input::-webkit-outer-spin-button,
         input[type="number"].readonly-input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -103,10 +104,10 @@
             font-size: 0.85em;
             color: #444;
             background: #e3f2fd;
-            padding: 6px 10px;
+            padding: 8px 12px;
             border-left: 4px solid #1976d2;
             border-radius: 4px;
-            line-height: 1.3;
+            line-height: 1.4;
         }
         .control-panel {
             margin-top: 15px;
@@ -127,7 +128,6 @@
             font-size: 0.85em;
         }
         .ok { background-color: #c8e6c9; color: #2e7d32; }
-        .error { background-color: #ffcdd2; color: #c62828; }
         .cell-flex {
             display: flex;
             align-items: center;
@@ -169,93 +169,175 @@
             font-size: 0.8em;
             line-height: 1.2;
         }
+
+        /* --- STYLIZACJA COOKIE BANNERA --- */
+        .cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #1b4332;
+            color: white;
+            padding: 10px 15px; /* Znacznie zmniejszony padding (wysokość belki) */
+            display: none; /* Domyślnie ukryty, pokazywany przez JS */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .cookie-banner p {
+            margin: 0 0 8px 0; /* Zmniejszony margines */
+            font-size: 0.85em; /* Nieco mniejsza czcionka tekstu */
+            text-align: center;
+        }
+        .cookie-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .cookie-btn {
+            padding: 6px 12px; /* Smuklejsze przyciski */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85em; /* Mniejsza czcionka przycisków */
+            transition: background-color 0.2s;
+        }
+        .btn-yes {
+            background-color: #b7e4c7;
+            color: #1b4332;
+        }
+        .btn-yes:hover { background-color: #95d5b2; }
+        .btn-no {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        .btn-no:hover { background-color: #ced4da; }
+
+        @media (min-width: 768px) {
+            .cookie-banner {
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 10px 20px; /* Zmniejszony padding na desktopie */
+            }
+            .cookie-banner p {
+                margin: 0;
+                text-align: left;
+            }
+        }
+
+        /* --- STYLIZACJA RESPONSYWNA (RWD) --- */
+        @media (max-width: 768px) {
+            body { padding: 5px; padding-bottom: 75px; } /* Mniejsze odcięcie na dole dla telefonów */
+            .container { padding: 10px 10px; }
+            h2 { font-size: 1.1em; margin-bottom: 10px; }
+            th, td { padding: 6px 2px; font-size: 0.8em; }
+            th { font-size: 0.75em; }
+            .group-name { padding-left: 4px; font-size: 0.9em; word-wrap: break-word; }
+            input[type="number"] { width: 48px; height: 26px; font-size: 0.95em; }
+            .cell-flex { flex-direction: column; gap: 2px; }
+            .footer-grid { grid-template-columns: 1fr; gap: 15px; text-align: center; }
+            .contact-info, .disclaimer { text-align: center; max-width: 100%; }
+        }
     </style>
 </head>
 <body>
 
+<!-- COOKIE BANNER -->
+<div id="cookie-banner" class="cookie-banner">
+    <p>Ta strona korzysta z plików cookie (Google Analytics) do analizy ruchu anonimowych statystyk. Czy wyrażasz na to zgodę?</p>
+    <div class="cookie-buttons">
+        <button class="cookie-btn btn-yes" onclick="handleCookieConsent(true)">Tak, zgadzam się</button>
+        <button class="cookie-btn btn-no" onclick="handleCookieConsent(false)">Nie, odmawiam</button>
+    </div>
+</div>
+
 <div class="container">
     <h2>Kalkulator minimum i maksimum zwierzyny</h2>
     
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 25%;">Grupa płciowo-wiekowa</th>
-                <th style="width: 15%;">Optymalna</th>
-                <th style="width: 30%;">Minimum (90%)</th>
-                <th style="width: 30%;">Maksimum (110%)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="row-total-main">
-                <td class="group-name">RAZEM GATUNEK</td>
-                <td><span id="grand_opt" class="val-display">0</span></td>
-                <td><span id="grand_min" class="val-display">0</span></td>
-                <td><span id="grand_max" class="val-display">0</span></td>
-            </tr>
-            <tr class="row-total-males">
-                <td class="group-name">samce razem</td>
-                <td><span id="males_total_opt" class="val-display">0</span></td>
-                <td><span id="males_total_min" class="val-display">0</span></td>
-                <td><span id="males_total_max" class="val-display">0</span></td>
-            </tr>
-            <tr>
-                <td class="group-name"> - selekcyjne</td>
-                <td><input type="number" id="samce_sel_opt" class="opt-input" min="0" tabindex="1" onfocus="this.select()" oninput="recalcBalanced()"></td>
-                <td>
-                    <div class="cell-flex">
-                        <input type="number" id="samce_sel_min" class="readonly-input" readonly tabindex="-1">
-                    </div>
-                </td>
-                <td>
-                    <div class="cell-flex">
-                        <input type="number" id="samce_sel_max" class="readonly-input" readonly tabindex="-1">
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td class="group-name"> - łowne</td>
-                <td><input type="number" id="samce_low_opt" class="opt-input" min="0" tabindex="2" onfocus="this.select()" oninput="recalcBalanced()"></td>
-                <td>
-                    <div class="cell-flex">
-                        <input type="number" id="samce_low_min" class="readonly-input" readonly tabindex="-1">
-                    </div>
-                </td>
-                <td>
-                    <div class="cell-flex">
-                        <input type="number" id="samce_low_max" class="readonly-input" readonly tabindex="-1">
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td class="group-name">os. żeńskie</td>
-                <td><input type="number" id="os_zenskie_opt" class="opt-input" min="0" tabindex="3" onfocus="this.select()" oninput="recalcBalanced()"></td>
-                <td>
-                    <div class="cell-flex">
-                        <input type="number" id="os_zenskie_min" class="readonly-input" readonly tabindex="-1">
-                    </div>
-                </td>
-                <td>
-                    <div class="cell-flex">
-                        <input type="number" id="os_zenskie_max" class="readonly-input" readonly tabindex="-1">
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td class="group-name">os. młode</td>
-                <td><input type="number" id="os_mlode_opt" class="opt-input" min="0" tabindex="4" onfocus="this.select()" oninput="recalcBalanced()"></td>
-                <td>
-                    <div class="cell-flex">
-                        <input type="number" id="os_mlode_min" class="readonly-input" readonly tabindex="-1">
-                    </div>
-                </td>
-                <td>
-                    <div class="cell-flex">
-                        <input type="number" id="os_mlode_max" class="readonly-input" readonly tabindex="-1">
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="table-responsive-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Grupa</th>
+                    <th style="width: 20%;">Optymalna</th>
+                    <th style="width: 25%;">Minimum (90%)</th>
+                    <th style="width: 25%;">Maksimum (110%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="row-total-main">
+                    <td class="group-name">RAZEM GATUNEK</td>
+                    <td><span id="grand_opt" class="val-display">0</span></td>
+                    <td><span id="grand_min" class="val-display">0</span></td>
+                    <td><span id="grand_max" class="val-display">0</span></td>
+                </tr>
+                <tr class="row-total-males">
+                    <td class="group-name">samce razem</td>
+                    <td><span id="males_total_opt" class="val-display">0</span></td>
+                    <td><span id="males_total_min" class="val-display">0</span></td>
+                    <td><span id="males_total_max" class="val-display">0</span></td>
+                </tr>
+                <tr>
+                    <td class="group-name"> - selekcyjne</td>
+                    <td><input type="number" id="samce_sel_opt" class="opt-input" min="0" tabindex="1" onfocus="this.select()" oninput="recalcBalanced()"></td>
+                    <td>
+                        <div class="cell-flex">
+                            <input type="number" id="samce_sel_min" class="readonly-input" readonly tabindex="-1">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="cell-flex">
+                            <input type="number" id="samce_sel_max" class="readonly-input" readonly tabindex="-1">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="group-name"> - łowne</td>
+                    <td><input type="number" id="samce_low_opt" class="opt-input" min="0" tabindex="2" onfocus="this.select()" oninput="recalcBalanced()"></td>
+                    <td>
+                        <div class="cell-flex">
+                            <input type="number" id="samce_low_min" class="readonly-input" readonly tabindex="-1">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="cell-flex">
+                            <input type="number" id="samce_low_max" class="readonly-input" readonly tabindex="-1">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="group-name">os. żeńskie</td>
+                    <td><input type="number" id="os_zenskie_opt" class="opt-input" min="0" tabindex="3" onfocus="this.select()" oninput="recalcBalanced()"></td>
+                    <td>
+                        <div class="cell-flex">
+                            <input type="number" id="os_zenskie_min" class="readonly-input" readonly tabindex="-1">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="cell-flex">
+                            <input type="number" id="os_zenskie_max" class="readonly-input" readonly tabindex="-1">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="group-name">os. młode</td>
+                    <td><input type="number" id="os_mlode_opt" class="opt-input" min="0" tabindex="4" onfocus="this.select()" oninput="recalcBalanced()"></td>
+                    <td>
+                        <div class="cell-flex">
+                            <input type="number" id="os_mlode_min" class="readonly-input" readonly tabindex="-1">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="cell-flex">
+                            <input type="number" id="os_mlode_max" class="readonly-input" readonly tabindex="-1">
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <div class="legend">
         <b>⚙️ System automatyczny:</b> Formularz generuje jedną wersję planu minimum i maksimum dla konkretnego zestawu wartości optymalnych do pozyskania. Jeżeli zachodzi potrzeba odjęcia lub dodania wartości w grupach płciowo wiekowych przydziela ją tak aby spowodować najmniejsze możliwe przekroczenie w widełkach +/- 10%
@@ -263,28 +345,30 @@
 
     <div class="control-panel">
         <h3>Panel Kontrolny Sumaryczny</h3>
-        <table>
-            <tr>
-                <th>Parametr kontrolny</th>
-                <th>Dopuszczalny przedział (90% - 110%)</th>
-                <th>Suma z tabeli</th>
-                <th>Status</th>
-            </tr>
-            <tr class="sub-header"><td colspan="4">Kontrola Całego Gatunku</td></tr>
-            <tr>
-                <td class="group-name">Suma Minimów / Maksimów</td>
-                <td id="check_req_all">0 - 0</td>
-                <td id="check_act_min_max">Min: 0 | Max: 0</td>
-                <td><span id="status_min" class="status ok">OK</span> <span id="status_max" class="status ok">OK</span></td>
-            </tr>
-            <tr class="sub-header"><td colspan="4">Kontrola Samców</td></tr>
-            <tr>
-                <td class="group-name">Suma Minimów / Maksimów</td>
-                <td id="check_males_req">0 - 0</td>
-                <td id="check_males_act">Min: 0 | Max: 0</td>
-                <td><span id="status_males_min" class="status ok">OK</span> <span id="status_males_max" class="status ok">OK</span></td>
-            </tr>
-        </table>
+        <div class="table-responsive-wrapper">
+            <table>
+                <tr>
+                    <th>Parametr kontrolny</th>
+                    <th>Dopuszczalny przedział (90% - 110%)</th>
+                    <th>Suma z tabeli</th>
+                    <th>Status</th>
+                </tr>
+                <tr class="sub-header"><td colspan="4">Kontrola Całego Gatunku</td></tr>
+                <tr>
+                    <td class="group-name">Suma Minimów / Maksimów</td>
+                    <td id="check_req_all">0 - 0</td>
+                    <td id="check_act_min_max">Min: 0 | Max: 0</td>
+                    <td><span id="status_min" class="status ok">OK</span> <span id="status_max" class="status ok">OK</span></td>
+                </tr>
+                <tr class="sub-header"><td colspan="4">Kontrola Samców</td></tr>
+                <tr>
+                    <td class="group-name">Suma Minimów / Maksimów</td>
+                    <td id="check_males_req">0 - 0</td>
+                    <td id="check_males_act">Min: 0 | Max: 0</td>
+                    <td><span id="status_males_min" class="status ok">OK</span> <span id="status_males_max" class="status ok">OK</span></td>
+                </tr>
+            </table>
+        </div>
     </div>
 
     <div class="footer-grid">
@@ -299,9 +383,58 @@
 </div>
 
 <script>
+    // --- LOGIKA OBSŁUGI COOKIES I GOOGLE ANALYTICS ---
+
+    // Ta funkcja uruchomi się przy wczytaniu strony
+    function checkCookieConsent() {
+        const consent = localStorage.getItem('kalkulator_pzl_cookies');
+        
+        if (consent === 'granted') {
+            loadGoogleAnalytics(); // Użytkownik już się zgodził, ładujemy od razu
+        } else if (consent === null) {
+            // Brak wyboru - pokazujemy baner
+            document.getElementById('cookie-banner').style.display = 'flex';
+        }
+        // Jeśli 'denied', nic nie robimy.
+    }
+
+    // Obsługa przycisków w banerze
+    function handleCookieConsent(isGranted) {
+        document.getElementById('cookie-banner').style.display = 'none'; // Ukrywamy baner
+        
+        if (isGranted) {
+            localStorage.setItem('kalkulator_pzl_cookies', 'granted');
+            loadGoogleAnalytics(); // Uruchamiamy GA po wyrażeniu zgody
+        } else {
+            localStorage.setItem('kalkulator_pzl_cookies', 'denied');
+        }
+    }
+
+    // Dynamiczne ładowanie podanego kodu śledzenia
+    function loadGoogleAnalytics() {
+        console.log("Ładowanie Google Analytics (za zgodą użytkownika)...");
+        
+        // Utworzenie tagu script dla pliku gtag.js
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = "https://www.googletagmanager.com/gtag/js?id=G-2N0F6J2M8Z";
+        document.head.appendChild(script);
+
+        // Inicjalizacja konfiguracji
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-2N0F6J2M8Z');
+    }
+
+    // Wywołanie sprawdzenia cookies po załadowaniu okna
+    window.onload = checkCookieConsent;
+
+
+    // --- LOGIKA KALKULATORA (BEZ ZMIAN) ---
+
     const inputs = ['samce_sel', 'samce_low', 'os_zenskie', 'os_mlode'];
 
-    // Algorytm dystrybuujący braki ułamkowe w ścisłych granicach legalności
     function distributeSmart(ids, type, targetSum, data) {
         let items = ids.map(id => {
             let opt = data[id].opt;
@@ -351,14 +484,12 @@
             }
         }
 
-        // Zapis do struktury i HTML
         items.forEach(item => {
             data[item.id][type] = item.val;
             document.getElementById(item.id + '_' + type).value = item.val;
         });
     }
 
-    // Główna funkcja liczaca
     function recalcBalanced() {
         let data = {};
         inputs.forEach(id => {
@@ -371,25 +502,21 @@
 
         let males_min_target = Math.round(males_opt * 0.9);
         let males_max_target = Math.round(males_opt * 1.1);
-
         let total_min_target = Math.round(total_opt * 0.9);
         let total_max_target = Math.round(total_opt * 1.1);
 
-        // 1. Zbilansowanie samców
         distributeSmart(['samce_sel', 'samce_low'], 'min', males_min_target, data);
         distributeSmart(['samce_sel', 'samce_low'], 'max', males_max_target, data);
 
         let resolved_males_min = data.samce_sel.min + data.samce_low.min;
         let resolved_males_max = data.samce_sel.max + data.samce_low.max;
 
-        // 2. Zbilansowanie reszty (zależnie od tego ile ułamków zabrały samce)
         let others_min_target = total_min_target - resolved_males_min;
         let others_max_target = total_max_target - resolved_males_max;
 
         distributeSmart(['os_zenskie', 'os_mlode'], 'min', others_min_target, data);
         distributeSmart(['os_zenskie', 'os_mlode'], 'max', others_max_target, data);
 
-        // Odświeżenie interfejsu
         updateSums(data, males_opt, others_opt, total_opt, males_min_target, males_max_target, total_min_target, total_max_target);
     }
 
@@ -408,7 +535,6 @@
         document.getElementById('grand_min').innerText = g_min;
         document.getElementById('grand_max').innerText = g_max;
 
-        // Panel na dole
         document.getElementById('check_req_all').innerText = g_min_tar + " - " + g_max_tar;
         document.getElementById('check_act_min_max').innerText = "Min: " + g_min + " | Max: " + g_max;
         document.getElementById('check_males_req').innerText = m_min_tar + " - " + m_max_tar;
